@@ -71,7 +71,13 @@ module Registration
       # @param [Boolean] enable true for filtering beta releases
       def filter_beta_releases(enable)
         self.class.filter_beta = enable
-        @addons = enable ? @all_addons.reject(&:beta_release?) : @all_addons
+        if enable
+          unregistered_addons = @all_addons.reject(&:registered?)
+          @addons = @all_addons.select(&:registered?)
+          @addons.concat(unregistered_addons.reject(&:beta_release?))
+        else
+          @addons = @all_addons
+        end
       end
 
     private
