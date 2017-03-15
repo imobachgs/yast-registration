@@ -27,6 +27,14 @@ describe Registration::UI::AddonSelectionRegistrationDialog do
       expect_any_instance_of(described_class).to receive(:filter_beta_releases).with(false)
       described_class.new(fake_ref)
     end
+
+    it "verifies if filter_out checkbox initializes selected" do
+      expect(Yast::UI).to receive(:QueryWidget)
+        .with(Yast::Term.new(:id, :filter_beta), :Value)
+        .and_return(true)
+      registration = double(activated_products: [], get_addon_list: [])
+      described_class.new(registration)
+    end
   end
 
   describe ".run" do
