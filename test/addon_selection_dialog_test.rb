@@ -40,6 +40,12 @@ describe Registration::UI::AddonSelectionRegistrationDialog do
     end
 
     let(:registration) { double(activated_products: [], get_addon_list: []) }
+    let(:filter_beta) { false }
+
+    before do
+      allow(described_class).to receive(:filter_beta).and_return(filter_beta)
+    end
+
 
     it "returns response from addon selection according to pressed button" do
       expect(Yast::UI).to receive(:UserInput).and_return(:abort)
@@ -65,32 +71,26 @@ describe Registration::UI::AddonSelectionRegistrationDialog do
       expect(wrapped_addon.selected?).to eq true
     end
 
-    context "when beta versions are filtered" do
+    context "when beta versions are not filtered" do
       subject(:dialog) { described_class.new(registration) }
-
-      before do
-        allow(described_class).to receive(:filter_beta).and_return(false)
-      end
+      let(:filter_beta) { false }
 
       it "sets the filter as 'enabled' in the UI" do
         expect(dialog).to receive(:CheckBox)
-          .with(Yast::Term.new(:id, :filter_beta), anything, anything, false)
+          .with(Yast::Term.new(:id, :filter_beta), anything, anything, filter_beta)
           .and_call_original
         expect(Yast::UI).to receive(:UserInput).and_return(:next)
         dialog.run
       end
     end
 
-    context "when beta versions are not filtered" do
+    context "when beta versions are filtered" do
       subject(:dialog) { described_class.new(registration) }
-
-      before do
-        allow(described_class).to receive(:filter_beta).and_return(true)
-      end
+      let(:filter_beta) { true }
 
       it "sets the filter as 'disabled' in the UI" do
         expect(dialog).to receive(:CheckBox)
-          .with(Yast::Term.new(:id, :filter_beta), anything, anything, true)
+          .with(Yast::Term.new(:id, :filter_beta), anything, anything, filter_beta)
           .and_call_original
         expect(Yast::UI).to receive(:UserInput).and_return(:next)
         dialog.run
